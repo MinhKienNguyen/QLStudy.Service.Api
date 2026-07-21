@@ -46,6 +46,7 @@ namespace QLStudy.API.Controllers
 
             // 5. Query user from database
             return await _context.Users
+                .Include(u => u.Center)
                 .Include(u => u.UserSubjects)
                 .FirstOrDefaultAsync(u => u.Id == userId && u.Status == "Active");
         }

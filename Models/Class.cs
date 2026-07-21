@@ -2,9 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace QLStudy.API.Models
 {
-    public class Class
+    public class Class : ITenantScoped
     {
         public int Id { get; set; }
+        public int CenterId { get; set; } = 1;
         public string Name { get; set; } = string.Empty;
         public int SemesterId { get; set; }
         public int? SubjectId { get; set; }
@@ -12,6 +13,9 @@ namespace QLStudy.API.Models
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
         public decimal TuitionFee { get; set; } = 0;
+
+        [JsonIgnore]
+        public Center? Center { get; set; }
 
         public Semester? Semester { get; set; }
         public Subject? Subject { get; set; }

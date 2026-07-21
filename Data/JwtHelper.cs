@@ -24,7 +24,8 @@ namespace QLStudy.API.Data
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
-                new Claim("name", user.FullName)
+                new Claim("name", user.FullName),
+                new Claim("center_id", user.CenterId.ToString())
             };
 
             var token = new JwtSecurityToken(

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3iDM/vA84+o=",
+  "dgSpecHash": "u/jtcoXhe4o=",
   "success": true,
-  "projectFilePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\Backend\\QLStudy.API.csproj",
+  "projectFilePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac\\8.0.0\\autofac.8.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac.extensions.dependencyinjection\\9.0.0\\autofac.extensions.dependencyinjection.9.0.0.nupkg.sha512",
@@ -62,9 +62,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
-      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\Backend\\QLStudy.API.csproj",
+      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\Backend\\QLStudy.API.csproj",
+      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "libraryId": "Microsoft.OpenApi",
       "targetGraphs": [
         "net10.0"
@@ -74,9 +74,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-2m69-gcr7-jv3q",
-      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\Backend\\QLStudy.API.csproj",
+      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\Backend\\QLStudy.API.csproj",
+      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
       "targetGraphs": [
         "net10.0"

@@ -1,14 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using QLStudy.API.Models;
+using QLStudy.API.Services.Tenancy;
 
 namespace QLStudy.API.Data
 {
     public class QLStudyDbContext : DbContext
     {
-        public QLStudyDbContext(DbContextOptions<QLStudyDbContext> options) : base(options)
+        private readonly ICurrentTenant _currentTenant;
+
+        public QLStudyDbContext(DbContextOptions<QLStudyDbContext> options, ICurrentTenant currentTenant) : base(options)
         {
+            _currentTenant = currentTenant;
         }
 
+        public DbSet<Center> Centers => Set<Center>();
         public DbSet<Semester> Semesters => Set<Semester>();
         public DbSet<Class> Classes => Set<Class>();
         public DbSet<ClassSchedule> ClassSchedules => Set<ClassSchedule>();
@@ -31,6 +36,25 @@ namespace QLStudy.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Center>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
+
+            ConfigureTenant<User>(modelBuilder);
+            ConfigureTenant<Semester>(modelBuilder);
+            ConfigureTenant<Class>(modelBuilder);
+            ConfigureTenant<ClassSchedule>(modelBuilder);
+            ConfigureTenant<Student>(modelBuilder);
+            ConfigureTenant<RewardOption>(modelBuilder);
+            ConfigureTenant<TuitionPeriod>(modelBuilder);
+            ConfigureTenant<TuitionPayment>(modelBuilder);
+            ConfigureTenant<TuitionAdjustment>(modelBuilder);
+            ConfigureTenant<Attendance>(modelBuilder);
+            ConfigureTenant<Subject>(modelBuilder);
+            ConfigureTenant<PenaltyRule>(modelBuilder);
+            ConfigureTenant<StudentPenalty>(modelBuilder);
+            ConfigureTenant<StudentScore>(modelBuilder);
 
             // Configure Class-Semester relation
             modelBuilder.Entity<Class>()
@@ -200,6 +224,42 @@ namespace QLStudy.API.Data
                 .WithMany()
                 .HasForeignKey(ss => ss.ClassId)
                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        public override int SaveChanges()
+        {
+            ApplyTenantToNewEntities();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyTenantToNewEntities();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void ApplyTenantToNewEntities()
+        {
+            foreach (var entry in ChangeTracker.Entries<ITenantScoped>().Where(e => e.State == EntityState.Added))
+            {
+                if (entry.Entity.CenterId <= 0)
+                {
+                    entry.Entity.CenterId = _currentTenant.CenterId;
+                }
+            }
+        }
+
+        private void ConfigureTenant<TEntity>(ModelBuilder modelBuilder)
+            where TEntity : class, ITenantScoped
+        {
+            modelBuilder.Entity<TEntity>()
+                .HasQueryFilter(entity => entity.CenterId == _currentTenant.CenterId);
+
+            modelBuilder.Entity<TEntity>()
+                .HasOne(entity => entity.Center)
+                .WithMany()
+                .HasForeignKey(entity => entity.CenterId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -37,7 +37,9 @@ namespace QLStudy.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.Users
+                .Include(u => u.Center)
+                .FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || user.Status != "Active")
             {
                 return BadRequest(new { message = "Email không tồn tại hoặc tài khoản đã bị khóa." });
@@ -79,6 +81,9 @@ namespace QLStudy.API.Controllers
                     user.Email,
                     user.PhoneNumber,
                     user.Role,
+                    user.CenterId,
+                    CenterCode = user.Center?.Code ?? "default",
+                    CenterName = user.Center?.Name ?? "Trung tâm mặc định",
                     Token = token // fallback for compatibility
                 },
                 permissions
@@ -157,6 +162,9 @@ namespace QLStudy.API.Controllers
                     user.Email,
                     user.PhoneNumber,
                     user.Role,
+                    user.CenterId,
+                    CenterCode = user.Center?.Code ?? "default",
+                    CenterName = user.Center?.Name ?? "Trung tâm mặc định",
                     user.Token
                 },
                 permissions
