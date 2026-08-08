@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43043e792d0301362a3c73b134a270072f97eb5a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ef9e013241956e5e02b4412ee64bff181f464db")]
 [assembly: System.Reflection.AssemblyProductAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

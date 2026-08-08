@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="..\QLStudy.Domain\QLStudy.Domain.csproj" />
+  <Project Path="..\QLStudy.Application\QLStudy.Application.csproj" />
+  <Project Path="..\QLStudy.Infrastructure\QLStudy.Infrastructure.csproj" />
   <Project Path="QLStudy.API.csproj" />
 </Solution>

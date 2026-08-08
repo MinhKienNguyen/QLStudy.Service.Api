@@ -1,7 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QLStudy.API.Data;
-using QLStudy.API.Models;
+using QLStudy.Domain.Entities;
+using QLStudy.Service.Api.Features.Legacy;
 
 namespace QLStudy.API.Controllers
 {
@@ -9,93 +9,38 @@ namespace QLStudy.API.Controllers
     [Route("api/[controller]")]
     public class SubjectsController : BaseApiController
     {
-        public SubjectsController(QLStudyDbContext context) : base(context)
+        public SubjectsController(IMediator mediator) : base(mediator)
         {
         }
 
-        // GET: api/subjects
         [HttpGet]
-        public async Task<IActionResult> GetSubjects()
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
+                public async Task<IActionResult> GetSubjects()
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(SubjectsControllerLogic), nameof(GetSubjects), Array.Empty<object?>(), ControllerContext));
+                }
 
-            var subjects = await _context.Subjects.OrderBy(s => s.Name).ToListAsync();
-            return Ok(subjects);
-        }
-
-        // GET: api/subjects/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSubject(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
+                public async Task<IActionResult> GetSubject(int id)
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(SubjectsControllerLogic), nameof(GetSubject), new object?[] { id }, ControllerContext));
+                }
 
-            var subject = await _context.Subjects.FindAsync(id);
-            if (subject == null) return NotFound();
-
-            return Ok(subject);
-        }
-
-        // POST: api/subjects
         [HttpPost]
-        public async Task<IActionResult> CreateSubject([FromBody] Subject subject)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-            if (user.Role != "Manager") return Forbid();
+                public async Task<IActionResult> CreateSubject([FromBody] Subject subject)
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(SubjectsControllerLogic), nameof(CreateSubject), new object?[] { subject }, ControllerContext));
+                }
 
-            _context.Subjects.Add(subject);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSubject), new { id = subject.Id }, subject);
-        }
-
-        // PUT: api/subjects/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSubject(int id, [FromBody] Subject subject)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-            if (user.Role != "Manager") return Forbid();
+                public async Task<IActionResult> UpdateSubject(int id, [FromBody] Subject subject)
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(SubjectsControllerLogic), nameof(UpdateSubject), new object?[] { id, subject }, ControllerContext));
+                }
 
-            if (id != subject.Id) return BadRequest();
-
-            _context.Entry(subject).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await SubjectExists(id)) return NotFound();
-                throw;
-            }
-
-            return NoContent();
-        }
-
-        // DELETE: api/subjects/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSubject(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-            if (user.Role != "Manager") return Forbid();
-
-            var subject = await _context.Subjects.FindAsync(id);
-            if (subject == null) return NotFound();
-
-            _context.Subjects.Remove(subject);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private async Task<bool> SubjectExists(int id)
-        {
-            return await _context.Subjects.AnyAsync(e => e.Id == id);
-        }
+                public async Task<IActionResult> DeleteSubject(int id)
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(SubjectsControllerLogic), nameof(DeleteSubject), new object?[] { id }, ControllerContext));
+                }
     }
 }

@@ -1,7 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QLStudy.API.Data;
-using QLStudy.API.Models;
+using QLStudy.Domain.Entities;
+using QLStudy.Service.Api.Features.Legacy;
 
 namespace QLStudy.API.Controllers
 {
@@ -9,63 +9,28 @@ namespace QLStudy.API.Controllers
     [Route("api/[controller]")]
     public class RewardOptionsController : BaseApiController
     {
-        public RewardOptionsController(QLStudyDbContext context) : base(context)
+        public RewardOptionsController(IMediator mediator) : base(mediator)
         {
         }
 
-        // GET: api/rewardoptions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RewardOption>>> GetRewardOptions()
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
+                public async Task<ActionResult<IEnumerable<RewardOption>>> GetRewardOptions()
+                {
+                    var result = await _mediator.Send(new LegacyControllerActionRequest(nameof(RewardOptionsControllerLogic), nameof(GetRewardOptions), Array.Empty<object?>(), ControllerContext));
+                    return result is ActionResult actionResult ? actionResult : new ObjectResult(result);
+                }
 
-            return await _context.RewardOptions
-                .OrderBy(r => r.Name)
-                .ToListAsync();
-        }
-
-        // POST: api/rewardoptions
         [HttpPost]
-        public async Task<ActionResult<RewardOption>> CreateRewardOption([FromBody] RewardOption option)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-            if (user.Role != "Manager") return Forbid();
+                public async Task<ActionResult<RewardOption>> CreateRewardOption([FromBody] RewardOption option)
+                {
+                    var result = await _mediator.Send(new LegacyControllerActionRequest(nameof(RewardOptionsControllerLogic), nameof(CreateRewardOption), new object?[] { option }, ControllerContext));
+                    return result is ActionResult actionResult ? actionResult : new ObjectResult(result);
+                }
 
-            if (string.IsNullOrWhiteSpace(option.Name))
-            {
-                return BadRequest("Reward name cannot be empty.");
-            }
-
-            // Check duplicate
-            var exists = await _context.RewardOptions.AnyAsync(r => r.Name.ToLower() == option.Name.ToLower());
-            if (exists)
-            {
-                return BadRequest("This reward category already exists.");
-            }
-
-            _context.RewardOptions.Add(option);
-            await _context.SaveChangesAsync();
-
-            return Ok(option);
-        }
-
-        // DELETE: api/rewardoptions/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRewardOption(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-            if (user.Role != "Manager") return Forbid();
-
-            var option = await _context.RewardOptions.FindAsync(id);
-            if (option == null) return NotFound();
-
-            _context.RewardOptions.Remove(option);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+                public async Task<IActionResult> DeleteRewardOption(int id)
+                {
+                    return await _mediator.Send(new LegacyControllerActionRequest(nameof(RewardOptionsControllerLogic), nameof(DeleteRewardOption), new object?[] { id }, ControllerContext));
+                }
     }
 }
