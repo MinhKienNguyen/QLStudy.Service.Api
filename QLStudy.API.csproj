@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
+    <PackageReference Include="payOS" Version="2.1.0" />
     <PackageReference Include="TLog" Version="1.0.4" />
   </ItemGroup>
 

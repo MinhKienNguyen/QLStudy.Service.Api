@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLStudy.Infrastructure.Data;
 using QLStudy.Domain.Entities;
@@ -17,50 +17,21 @@ namespace QLStudy.Service.Api.Features.Legacy
         [HttpGet("semesters-summary")]
         public async Task<IActionResult> GetSemestersSummary()
         {
-            var user = await GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
-
-            if (user.Role == "Teacher")
-            {
-                var subjectIds = await GetTeacherSubjectIdsAsync(user.Id);
-                var teacherSummary = await _context.Semesters
-                    .Select(s => new
-                    {
-                        semesterId = s.Id,
-                        semesterName = s.Name,
-                        totalClasses = s.Classes.Where(c => c.SubjectId != null && subjectIds.Contains(c.SubjectId.Value)).Count(),
-                        totalStudents = _context.StudentClasses
-                            .Where(sc => sc.Class!.SemesterId == s.Id && sc.Class.SubjectId != null && subjectIds.Contains(sc.Class.SubjectId.Value))
-                            .Select(sc => sc.StudentId)
-                            .Distinct()
-                            .Count(),
-                        totalRevenue = _context.TuitionPayments
-                            .Where(p => p.TuitionPeriod!.SemesterId == s.Id && p.Class!.SubjectId != null && subjectIds.Contains(p.Class.SubjectId.Value))
-                            .Sum(p => (decimal?)p.AmountPaid) ?? 0
-                    })
-                    .ToListAsync();
-
-                return Ok(teacherSummary);
-            }
-
-            var summary = await _context.Semesters
-                .Select(s => new
-                {
-                    semesterId = s.Id,
-                    semesterName = s.Name,
-                    totalClasses = s.Classes.Count,
-                    totalStudents = _context.StudentClasses
-                        .Where(sc => sc.Class!.SemesterId == s.Id)
-                        .Select(sc => sc.StudentId)
-                        .Distinct()
-                        .Count(),
-                    totalRevenue = _context.TuitionPayments
-                        .Where(p => p.TuitionPeriod!.SemesterId == s.Id)
-                        .Sum(p => (decimal?)p.AmountPaid) ?? 0
-                })
+            var userSubjects = await _context.UserSubjects
+                .Include(us => us.User)
+                .Include(us => us.Subject)
                 .ToListAsync();
 
-            return Ok(summary);
+            var debugList = userSubjects.Select(us => new {
+                userId = us.UserId,
+                userName = us.User?.FullName,
+                userEmail = us.User?.Email,
+                userRole = us.User?.Role,
+                subjectId = us.SubjectId,
+                subjectName = us.Subject?.Name
+            }).ToList();
+
+            return Ok(debugList);
         }
 
         // GET: api/reports/monthly-revenue?semesterId=5
@@ -145,6 +116,7 @@ namespace QLStudy.Service.Api.Features.Legacy
             }
 
             var classes = await query.OrderBy(c => c.Name).ToListAsync();
+
             var fromDisplayOrder = fromPeriodId.HasValue
                 ? await _context.TuitionPeriods.Where(p => p.SemesterId == semesterId && p.Id == fromPeriodId.Value).Select(p => (int?)p.DisplayOrder).FirstOrDefaultAsync()
                 : null;
@@ -152,12 +124,27 @@ namespace QLStudy.Service.Api.Features.Legacy
                 ? await _context.TuitionPeriods.Where(p => p.SemesterId == semesterId && p.Id == toPeriodId.Value).Select(p => (int?)p.DisplayOrder).FirstOrDefaultAsync()
                 : null;
 
-            var periodIds = await _context.TuitionPeriods
+            var periodsInRange = await _context.TuitionPeriods
                 .Where(p => p.SemesterId == semesterId)
                 .Where(p => !fromDisplayOrder.HasValue || p.DisplayOrder >= fromDisplayOrder.Value)
                 .Where(p => !toDisplayOrder.HasValue || p.DisplayOrder <= toDisplayOrder.Value)
-                .Select(p => p.Id)
                 .ToListAsync();
+
+            var periodIds = periodsInRange.Select(p => p.Id).ToList();
+
+            var allowedClassIds = classes.Select(c => c.Id).ToList();
+            var enrollments = await _context.StudentClassEnrollments
+                .Where(e => allowedClassIds.Contains(e.ClassId))
+                .ToListAsync();
+
+            var studentClasses = await _context.StudentClasses
+                .Include(sc => sc.Student)
+                .Where(sc => allowedClassIds.Contains(sc.ClassId))
+                .ToListAsync();
+
+            var enrollmentLookup = enrollments
+                .GroupBy(e => $"{e.StudentId}:{e.ClassId}")
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             var classRevenue = new List<object>();
             foreach (var c in classes)
@@ -166,14 +153,39 @@ namespace QLStudy.Service.Api.Features.Legacy
                     .Where(tp => tp.ClassId == c.Id && periodIds.Contains(tp.TuitionPeriodId))
                     .SumAsync(tp => (decimal?)tp.AmountPaid) ?? 0;
 
-                var studentCount = await _context.StudentClasses
-                    .CountAsync(sc => sc.ClassId == c.Id);
+                var classStudents = studentClasses.Where(sc => sc.ClassId == c.Id).ToList();
+                int activeStudentCount = 0;
+
+                foreach (var sc in classStudents)
+                {
+                    var lookupKey = $"{sc.StudentId}:{sc.ClassId}";
+                    var rowEnrollments = enrollmentLookup.TryGetValue(lookupKey, out var foundEnrollments)
+                        ? foundEnrollments
+                        : new List<StudentClassEnrollment>();
+
+                    var fallbackStart = string.IsNullOrWhiteSpace(sc.StartMonth) ? sc.Student!.StartMonth : sc.StartMonth;
+
+                    bool isActiveInRange = false;
+                    foreach (var period in periodsInRange)
+                    {
+                        if (IsStudentActiveInPeriod(period, c.StartDate, c.EndDate, rowEnrollments, fallbackStart))
+                        {
+                            isActiveInRange = true;
+                            break;
+                        }
+                    }
+
+                    if (isActiveInRange)
+                    {
+                        activeStudentCount++;
+                    }
+                }
 
                 classRevenue.Add(new
                 {
                     classId = c.Id,
                     className = c.Name,
-                    studentCount = studentCount,
+                    studentCount = activeStudentCount,
                     amount = amount
                 });
             }
@@ -215,6 +227,16 @@ namespace QLStudy.Service.Api.Features.Legacy
                     .ThenBy(sc => sc.Student!.Name)
                 .ToListAsync();
 
+            var allowedClassIds = studentClasses.Select(sc => sc.ClassId).Distinct().ToList();
+            var allowedStudentIds = studentClasses.Select(sc => sc.StudentId).Distinct().ToList();
+            var enrollments = await _context.StudentClassEnrollments
+                .Where(e => allowedClassIds.Contains(e.ClassId) && allowedStudentIds.Contains(e.StudentId))
+                .ToListAsync();
+
+            var enrollmentLookup = enrollments
+                .GroupBy(e => $"{e.StudentId}:{e.ClassId}")
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var payments = await queryPayments.ToListAsync();
             var adjustments = await _context.TuitionAdjustments
                 .Where(a => a.TuitionPeriodId == periodId)
@@ -233,6 +255,17 @@ namespace QLStudy.Service.Api.Features.Legacy
 
             foreach (var sc in studentClasses)
             {
+                var lookupKey = $"{sc.StudentId}:{sc.ClassId}";
+                var rowEnrollments = enrollmentLookup.TryGetValue(lookupKey, out var foundEnrollments)
+                    ? foundEnrollments
+                    : new List<StudentClassEnrollment>();
+
+                var fallbackStart = string.IsNullOrWhiteSpace(sc.StartMonth) ? sc.Student!.StartMonth : sc.StartMonth;
+                if (!IsStudentActiveInPeriod(period, sc.Class!.StartDate, sc.Class!.EndDate, rowEnrollments, fallbackStart))
+                {
+                    continue;
+                }
+
                 var key = new { sc.StudentId, sc.ClassId };
                 var adjustment = adjustmentDict.TryGetValue(key, out var adjustmentValue) ? adjustmentValue : null;
                 var amountDue = adjustment == null
@@ -266,7 +299,7 @@ namespace QLStudy.Service.Api.Features.Legacy
                         className = sc.Class!.Name,
                         amountDue,
                         amountPaid = 0,
-                        notes = string.IsNullOrWhiteSpace(adjustment?.Note) ? "Miá»…n há»c phÃ­" : adjustment!.Note,
+                        notes = string.IsNullOrWhiteSpace(adjustment?.Note) ? "Miễn học phí" : adjustment!.Note,
                         paidAt = (DateTime?)null,
                         adjustmentType = adjustment?.AdjustmentType ?? "Free",
                         adjustmentValue = adjustment?.AdjustmentValue ?? 0,
@@ -309,6 +342,102 @@ namespace QLStudy.Service.Api.Features.Legacy
             };
 
             return Math.Round(Math.Max(0, amountDue), 0);
+        }
+
+        private static bool IsStudentActiveInPeriod(TuitionPeriod period, DateOnly? classStartDate, DateOnly? classEndDate, List<StudentClassEnrollment> enrollments, string fallbackStartMonth)
+        {
+            if (!TryParsePeriodStart(period.MonthName, out var targetDate))
+            {
+                return true;
+            }
+
+            if (enrollments == null || !enrollments.Any())
+            {
+                var start = ResolveMonthForClassRange(fallbackStartMonth, classStartDate, classEndDate);
+                if (start == null) return true;
+                return targetDate >= start.Value;
+            }
+
+            foreach (var enrollment in enrollments)
+            {
+                var start = ResolveMonthForClassRange(enrollment.StartMonth, classStartDate, classEndDate);
+                var end = string.IsNullOrWhiteSpace(enrollment.EndMonth)
+                    ? null
+                    : ResolveMonthForClassRange(enrollment.EndMonth!, classStartDate, classEndDate);
+
+                if (start == null) continue;
+                if (targetDate >= start.Value && (end == null || targetDate <= end.Value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryParsePeriodStart(string value, out DateOnly periodStart)
+        {
+            periodStart = default;
+            if (string.IsNullOrWhiteSpace(value)) return false;
+
+            var normalized = value.Trim().ToUpperInvariant();
+            if (!normalized.StartsWith("T")) return false;
+
+            var parts = normalized[1..].Split('/', '-', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2) return false;
+
+            if (!int.TryParse(parts[0], out var month) || month < 1 || month > 12) return false;
+            if (!int.TryParse(parts[1], out var year) || year < 1) return false;
+
+            periodStart = new DateOnly(year, month, 1);
+            return true;
+        }
+
+        private static bool TryParseMonth(string value, out int month)
+        {
+            month = 0;
+            if (string.IsNullOrWhiteSpace(value)) return false;
+
+            var normalized = value.Trim().ToUpperInvariant();
+            if (normalized.StartsWith("T"))
+            {
+                normalized = normalized[1..];
+            }
+            normalized = normalized.Split('/', '-', StringSplitOptions.RemoveEmptyEntries)[0];
+
+            return int.TryParse(normalized, out month) && month >= 1 && month <= 12;
+        }
+
+        private static DateOnly? ResolveMonthForClassRange(string monthValue, DateOnly? classStartDate, DateOnly? classEndDate)
+        {
+            if (TryParsePeriodStart(monthValue, out var explicitMonth)) return explicitMonth;
+            if (!TryParseMonth(monthValue, out var month)) return null;
+
+            var baseStart = classStartDate == null
+                ? new DateOnly(DateTime.UtcNow.Year, month, 1)
+                : new DateOnly(classStartDate.Value.Year, classStartDate.Value.Month, 1);
+            var candidate = FirstMonthOnOrAfter(baseStart, month);
+            if (classEndDate != null)
+            {
+                var classEnd = new DateOnly(classEndDate.Value.Year, classEndDate.Value.Month, 1);
+                if (candidate > classEnd && candidate.AddYears(-1) >= baseStart)
+                {
+                    candidate = candidate.AddYears(-1);
+                }
+            }
+
+            return candidate;
+        }
+
+        private static DateOnly FirstMonthOnOrAfter(DateOnly baseStart, int month)
+        {
+            var candidate = new DateOnly(baseStart.Year, month, 1);
+            if (candidate < baseStart)
+            {
+                candidate = candidate.AddYears(1);
+            }
+
+            return candidate;
         }
     }
 }

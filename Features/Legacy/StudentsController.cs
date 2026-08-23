@@ -513,6 +513,216 @@ namespace QLStudy.Service.Api.Features.Legacy
 
             return int.TryParse(normalized, out month) && month >= 1 && month <= 12;
         }
+
+        [HttpGet("{id}/dashboard-data")]
+        public async Task<IActionResult> GetDashboardData(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null) return Unauthorized();
+
+            // Validate access: student can only view themselves, parents only their children
+            if (user.Role == "Student" && user.StudentId != id)
+            {
+                var isLinked = await _context.Users.AnyAsync(u => u.Id == user.Id && u.AssociatedStudents.Any(s => s.Id == id));
+                if (!isLinked) return Forbid();
+            }
+            else if (user.Role == "Parent")
+            {
+                var isLinked = await _context.Users.AnyAsync(u => u.Id == user.Id && u.AssociatedStudents.Any(s => s.Id == id));
+                if (!isLinked) return Forbid();
+            }
+
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive) 
+                ?? await _context.Semesters.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+
+            if (activeSemester == null)
+            {
+                return Ok(new
+                {
+                    studentName = "N/A",
+                    schedules = new List<object>(),
+                    tuition = new { monthName = "N/A", amountDue = 0, amountPaid = 0, isPaid = true },
+                    attendance = new { attendanceRate = 100, attendanceStatus = "N/A", presentCount = 0, lateCount = 0, absentCount = 0 },
+                    penalties = new List<object>()
+                });
+            }
+
+            var student = await _context.Students.FindAsync(id);
+            if (student == null) return NotFound();
+
+            var center = await _context.Centers.FindAsync(student.CenterId);
+
+            var studentClasses = await _context.StudentClasses
+                .Include(sc => sc.Class)
+                    .ThenInclude(c => c!.Schedules)
+                .Where(sc => sc.StudentId == id && sc.Class!.SemesterId == activeSemester.Id)
+                .ToListAsync();
+
+            // 1. Schedules
+            var schedulesList = studentClasses
+                .SelectMany(sc => sc.Class!.Schedules.Select(sched => new
+                {
+                    className = sc.Class.Name,
+                    dayOfWeek = sched.DayOfWeek,
+                    timeSlot = sched.TimeSlot,
+                    room = $"Phòng {sc.ClassId * 17 % 300 + 101}"
+                }))
+                .ToList();
+
+            // 2. Attendance
+            var attendances = await _context.Attendances
+                .Where(a => a.StudentId == id && a.Class!.SemesterId == activeSemester.Id)
+                .ToListAsync();
+
+            int presentCount = attendances.Count(a => a.Status == "Present");
+            int lateCount = attendances.Count(a => a.Status == "Late");
+            int absentCount = attendances.Count(a => a.Status == "Absent");
+            int totalAttendance = presentCount + lateCount + absentCount;
+
+            int attendanceRate = totalAttendance == 0 ? 100 : (int)Math.Round((double)(presentCount + lateCount) / totalAttendance * 100);
+            string attendanceStatus = "Xuất sắc";
+            if (attendanceRate < 70) attendanceStatus = "Cần cố gắng";
+            else if (attendanceRate < 90) attendanceStatus = "Khá";
+
+            // 3. Tuition for latest/current month period
+            var periods = await _context.TuitionPeriods
+                .Where(p => p.SemesterId == activeSemester.Id)
+                .OrderBy(p => p.DisplayOrder)
+                .ToListAsync();
+
+            var currentPeriod = periods.LastOrDefault();
+            decimal totalDue = 0;
+            decimal totalPaid = 0;
+
+            if (currentPeriod != null)
+            {
+                var adjustments = await _context.TuitionAdjustments
+                    .Where(a => a.StudentId == id && a.TuitionPeriodId == currentPeriod.Id)
+                    .ToListAsync();
+                var adjustmentDict = adjustments.ToDictionary(a => a.ClassId);
+
+                var payments = await _context.TuitionPayments
+                    .Where(p => p.StudentId == id && p.TuitionPeriodId == currentPeriod.Id)
+                    .ToListAsync();
+                var paymentDict = payments.GroupBy(p => p.ClassId).ToDictionary(g => g.Key, g => g.Sum(p => p.AmountPaid));
+
+                foreach (var sc in studentClasses)
+                {
+                    decimal standardFee = sc.Class!.TuitionFee;
+                    decimal adjustedFee = standardFee;
+                    if (adjustmentDict.TryGetValue(sc.ClassId, out var adj))
+                    {
+                        adjustedFee = adj.AdjustmentType switch
+                        {
+                            "DiscountPercent" => standardFee * (100 - Math.Min(100, Math.Max(0, adj.AdjustmentValue))) / 100,
+                            "DiscountAmount" => standardFee - Math.Max(0, adj.AdjustmentValue),
+                            "FixedAmount" => Math.Max(0, adj.AdjustmentValue),
+                            "Free" => 0,
+                            _ => standardFee
+                        };
+                    }
+
+                    totalDue += adjustedFee;
+                    if (paymentDict.TryGetValue(sc.ClassId, out var paidAmount))
+                    {
+                        totalPaid += paidAmount;
+                    }
+                }
+            }
+
+            string monthNameDisplay = currentPeriod?.MonthName ?? "T8/2026";
+            decimal fullDue = totalDue < 100000 ? totalDue * 1000 : totalDue;
+            decimal fullPaid = totalPaid < 100000 ? totalPaid * 1000 : totalPaid;
+            bool isPaid = fullPaid >= fullDue && fullDue > 0;
+
+            string bankName = center?.BankName ?? "Ngân hàng TMCP Đầu tư và Phát triển VN (BIDV)";
+            string bankAccountNumber = center?.BankAccountNumber ?? "21510008889999";
+            string bankAccountName = center?.BankAccountName ?? "TRUNG TAM QLSTUDY";
+
+            string qrUrl = center?.PaymentQrCode;
+            if (string.IsNullOrEmpty(qrUrl))
+            {
+                // Clean the bank name to use in VietQR URL (e.g. "BIDV" instead of "Ngân hàng BIDV")
+                string cleanBank = bankName.Split(' ').Last().ToLower(); 
+                if (cleanBank.Contains("bidv")) cleanBank = "bidv";
+                else if (cleanBank.Contains("vietcombank")) cleanBank = "vietcombank";
+                else if (cleanBank.Contains("mbbank") || cleanBank.Contains("mb")) cleanBank = "mb";
+                else if (cleanBank.Contains("techcombank")) cleanBank = "techcombank";
+                else cleanBank = "bidv"; // fallback
+
+                qrUrl = $"https://img.vietqr.io/image/{cleanBank}/{bankAccountNumber}/compact.png?amount={Convert.ToInt64(fullDue - fullPaid)}&addInfo=QLSTUDY%20{Uri.EscapeDataString(student.Name)}%20HP%20{Uri.EscapeDataString(monthNameDisplay)}";
+            }
+
+            bool isPayOSConfigured = center != null &&
+                                     !string.IsNullOrEmpty(center.PayOSClientId) &&
+                                     !string.IsNullOrEmpty(center.PayOSApiKey) &&
+                                     !string.IsNullOrEmpty(center.PayOSChecksumKey);
+
+            // 4. Penalties
+            var penaltiesList = await _context.StudentPenalties
+                .Include(p => p.Class)
+                .Include(p => p.PenaltyRule)
+                .Where(p => p.StudentId == id && p.Class!.SemesterId == activeSemester.Id)
+                .Select(p => new
+                {
+                    className = p.Class!.Name,
+                    ruleName = p.PenaltyRule!.Name,
+                    date = p.Date.ToString("yyyy-MM-dd"),
+                    amount = p.Amount < 100000 ? p.Amount * 1000 : p.Amount,
+                    note = p.Note
+                })
+                .ToListAsync();
+
+            // 5. Announcements (filter by Center/Class and active date range)
+            var now = DateTime.UtcNow;
+            var classIds = studentClasses.Select(sc => sc.ClassId).ToList();
+
+            var announcementsList = await _context.Announcements
+                .Include(a => a.Class)
+                .Where(a => a.StartDate == null || a.StartDate <= now)
+                .Where(a => a.EndDate == null || a.EndDate >= now)
+                .Where(a => a.Type == "Center" || (a.Type == "Class" && a.ClassId.HasValue && classIds.Contains(a.ClassId.Value)))
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => new
+                {
+                    title = a.Title,
+                    content = a.Content,
+                    type = a.Type,
+                    className = a.Class != null ? a.Class.Name : null,
+                    createdAt = a.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                studentName = student.Name,
+                schedules = schedulesList,
+                tuition = new
+                {
+                    monthName = monthNameDisplay,
+                    amountDue = fullDue,
+                    amountPaid = fullPaid,
+                    isPaid = isPaid,
+                    bankTitle = bankName,
+                    accountNumber = bankAccountNumber,
+                    accountName = bankAccountName,
+                    qrUrl = qrUrl,
+                    isPayOSConfigured = isPayOSConfigured,
+                    studentId = id,
+                    periodId = currentPeriod?.Id ?? 0
+                },
+                attendance = new
+                {
+                    attendanceRate = attendanceRate,
+                    attendanceStatus = attendanceStatus,
+                    presentCount = presentCount,
+                    lateCount = lateCount,
+                    absentCount = absentCount
+                },
+                penalties = penaltiesList,
+                announcements = announcementsList
+            });
+        }
     }
 }
 

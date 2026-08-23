@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj": {}
+    "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj": {}
   },
   "projects": {
-    "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj": {
+    "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj",
+        "projectUniqueName": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj",
         "projectName": "QLStudy.Application",
-        "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj",
+        "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\obj\\",
+        "outputPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,8 +33,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj"
               }
             }
           }
@@ -355,14 +355,14 @@
         }
       }
     },
-    "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj": {
+    "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj",
+        "projectUniqueName": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj",
         "projectName": "QLStudy.Domain",
-        "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj",
+        "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\obj\\",
+        "outputPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -696,14 +696,14 @@
         }
       }
     },
-    "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
+    "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj",
+        "projectUniqueName": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj",
         "projectName": "QLStudy.Infrastructure",
-        "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj",
+        "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\obj\\",
+        "outputPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -725,11 +725,11 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj"
               },
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj"
               }
             }
           }
@@ -1215,14 +1215,14 @@
         }
       }
     },
-    "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj": {
+    "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+        "projectUniqueName": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
         "projectName": "QLStudy.API",
-        "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+        "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\obj\\",
+        "outputPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1244,14 +1244,14 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj"
               },
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj"
               },
-              "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
-                "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj"
+              "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
+                "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj"
               }
             }
           }
@@ -1284,6 +1284,10 @@
             "TLog": {
               "target": "Package",
               "version": "[1.0.4, )"
+            },
+            "payOS": {
+              "target": "Package",
+              "version": "[2.1.0, )"
             }
           },
           "imports": [

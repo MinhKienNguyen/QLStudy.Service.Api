@@ -54,6 +54,21 @@ namespace QLStudy.Service.Api.Features.Legacy
                 .OrderBy(GetTimeSlotSortValue)
                 .ToList();
 
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            var monday = today.AddDays(-diff);
+
+            var dayDates = new Dictionary<string, DateOnly>
+            {
+                { "T2", monday },
+                { "T3", monday.AddDays(1) },
+                { "T4", monday.AddDays(2) },
+                { "T5", monday.AddDays(3) },
+                { "T6", monday.AddDays(4) },
+                { "T7", monday.AddDays(5) },
+                { "CN", monday.AddDays(6) }
+            };
+
             var dayNames = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
             var grid = new List<object>();
 
@@ -64,8 +79,12 @@ namespace QLStudy.Service.Api.Features.Legacy
 
                 foreach (var day in dayNames)
                 {
+                    var targetDate = dayDates[day];
                     var daySchedules = schedules
                         .Where(s => s.TimeSlot == slot && s.DayOfWeek == day)
+                        .Where(s => s.Class != null &&
+                                   (s.Class.StartDate == null || s.Class.StartDate <= targetDate) &&
+                                   (s.Class.EndDate == null || s.Class.EndDate >= today))
                         .OrderBy(s => s.Class!.Name)
                         .Select(s => new
                         {

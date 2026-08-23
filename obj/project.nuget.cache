@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QuB/uBtNroQ=",
+  "dgSpecHash": "9elQdrbVROE=",
   "success": true,
-  "projectFilePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+  "projectFilePath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac\\8.0.0\\autofac.8.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac.extensions.dependencyinjection\\9.0.0\\autofac.extensions.dependencyinjection.9.0.0.nupkg.sha512",
@@ -30,6 +30,7 @@
     "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\npgsql\\10.0.3\\npgsql.10.0.3.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\10.0.2\\npgsql.entityframeworkcore.postgresql.10.0.2.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\payos\\2.1.0\\payos.2.1.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\serilog\\3.1.1\\serilog.3.1.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\serilog.settings.configuration\\8.0.0\\serilog.settings.configuration.8.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\serilog.sinks.file\\5.0.0\\serilog.sinks.file.5.0.0.nupkg.sha512",
@@ -45,9 +46,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
-      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "filePath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "libraryId": "Microsoft.OpenApi",
       "targetGraphs": [
         "net10.0"
@@ -57,9 +58,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-2m69-gcr7-jv3q",
-      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "filePath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
       "targetGraphs": [
         "net10.0"

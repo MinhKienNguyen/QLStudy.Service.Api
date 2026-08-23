@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLStudy.Infrastructure.Data;
@@ -27,6 +27,8 @@ namespace QLStudy.Service.Api.Features.Legacy
             public string Role { get; set; } = "Teacher";
             public string Status { get; set; } = "Active";
             public List<int> SubjectIds { get; set; } = new List<int>();
+            public int? StudentId { get; set; }
+            public List<int> AssociatedStudentIds { get; set; } = new List<int>();
         }
 
         // GET: api/users
@@ -40,6 +42,8 @@ namespace QLStudy.Service.Api.Features.Legacy
             var users = await _context.Users
                 .Include(u => u.UserSubjects)
                 .ThenInclude(us => us.Subject)
+                .Include(u => u.Student)
+                .Include(u => u.AssociatedStudents)
                 .OrderBy(u => u.FullName)
                 .Select(u => new
                 {
@@ -50,7 +54,11 @@ namespace QLStudy.Service.Api.Features.Legacy
                     u.Role,
                     u.Status,
                     SubjectIds = u.UserSubjects.Select(us => us.SubjectId).ToList(),
-                    Subjects = u.UserSubjects.Select(us => us.Subject!.Name).ToList()
+                    Subjects = u.UserSubjects.Select(us => us.Subject!.Name).ToList(),
+                    u.StudentId,
+                    StudentName = u.Student != null ? u.Student.Name : null,
+                    AssociatedStudentIds = u.AssociatedStudents.Select(s => s.Id).ToList(),
+                    AssociatedStudentNames = u.AssociatedStudents.Select(s => s.Name).ToList()
                 })
                 .ToListAsync();
 
@@ -67,10 +75,12 @@ namespace QLStudy.Service.Api.Features.Legacy
 
             var user = await _context.Users
                 .Include(u => u.UserSubjects)
+                .Include(u => u.Student)
+                .Include(u => u.AssociatedStudents)
                 .FirstOrDefaultAsync(u => u.Id == id);
-
+ 
             if (user == null) return NotFound();
-
+ 
             return Ok(new
             {
                 user.Id,
@@ -79,6 +89,8 @@ namespace QLStudy.Service.Api.Features.Legacy
                 user.PhoneNumber,
                 user.Role,
                 user.Status,
+                user.StudentId,
+                AssociatedStudentIds = user.AssociatedStudents.Select(s => s.Id).ToList(),
                 SubjectIds = user.UserSubjects.Select(us => us.SubjectId).ToList()
             });
         }
@@ -103,8 +115,17 @@ namespace QLStudy.Service.Api.Features.Legacy
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 Role = dto.Role,
-                Status = dto.Status
+                Status = dto.Status,
+                StudentId = null
             };
+
+            // Bind associated students for parents or students
+            if ((dto.Role == "Parent" || dto.Role == "Student") && dto.AssociatedStudentIds != null && dto.AssociatedStudentIds.Any())
+            {
+                var students = await _context.Students.Where(s => dto.AssociatedStudentIds.Contains(s.Id)).ToListAsync();
+                user.AssociatedStudents = students;
+                user.StudentId = dto.AssociatedStudentIds.First();
+            }
 
             // Hash password
             string rawPassword = string.IsNullOrWhiteSpace(dto.Password) ? "123456" : dto.Password;
@@ -157,6 +178,19 @@ namespace QLStudy.Service.Api.Features.Legacy
             user.PhoneNumber = dto.PhoneNumber;
             user.Role = dto.Role;
             user.Status = dto.Status;
+            user.StudentId = null;
+
+            // Update associated students for Parents or Students
+            user.AssociatedStudents.Clear();
+            if ((dto.Role == "Parent" || dto.Role == "Student") && dto.AssociatedStudentIds != null && dto.AssociatedStudentIds.Any())
+            {
+                var students = await _context.Students.Where(s => dto.AssociatedStudentIds.Contains(s.Id)).ToListAsync();
+                foreach (var s in students)
+                {
+                    user.AssociatedStudents.Add(s);
+                }
+                user.StudentId = dto.AssociatedStudentIds.First();
+            }
 
             if (!string.IsNullOrWhiteSpace(dto.Password))
             {

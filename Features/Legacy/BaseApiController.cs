@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLStudy.Infrastructure.Data;
 using QLStudy.Domain.Entities;
@@ -47,6 +47,8 @@ namespace QLStudy.Service.Api.Features.Legacy
             // 5. Query user from database
             return await _context.Users
                 .Include(u => u.UserSubjects)
+                .Include(u => u.Student)
+                .Include(u => u.AssociatedStudents)
                 .FirstOrDefaultAsync(u => u.Id == userId && u.Status == "Active");
         }
 

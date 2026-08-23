@@ -27,6 +27,13 @@ namespace QLStudy.API.Controllers
                     return result is ActionResult actionResult ? actionResult : new ObjectResult(result);
                 }
 
+        [HttpGet("{id}/dashboard-data")]
+        public async Task<IActionResult> GetDashboardData(int id)
+        {
+            var result = await _mediator.Send(new LegacyControllerActionRequest(nameof(StudentsControllerLogic), nameof(GetDashboardData), new object?[] { id }, ControllerContext));
+            return result is ActionResult actionResult ? actionResult : new ObjectResult(result);
+        }
+
         [HttpPost]
                 public async Task<ActionResult<Student>> CreateStudent([FromBody] StudentsControllerLogic.StudentSaveDto dto)
                 {

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLStudy.Infrastructure.Data;
@@ -37,16 +37,19 @@ namespace QLStudy.Service.Api.Features.Legacy
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.AssociatedStudents)
+                .FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || user.Status != "Active")
             {
-                return BadRequest(new { message = "Email khÃ´ng tá»“n táº¡i hoáº·c tÃ i khoáº£n Ä‘Ã£ bá»‹ khÃ³a." });
+                return BadRequest(new { message = "Email không tồn tại hoặc tài khoản đã bị khóa." });
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
             if (result == PasswordVerificationResult.Failed)
             {
-                return BadRequest(new { message = "Máº­t kháº©u khÃ´ng chÃ­nh xÃ¡c." });
+                return BadRequest(new { message = "Mật khẩu không chính xác." });
             }
 
             // Generate JWT
@@ -79,6 +82,8 @@ namespace QLStudy.Service.Api.Features.Legacy
                     user.Email,
                     user.PhoneNumber,
                     user.Role,
+                    user.StudentId,
+                    AssociatedStudents = user.AssociatedStudents.Select(s => new { s.Id, s.Name }).ToList(),
                     Token = token // fallback for compatibility
                 },
                 permissions
@@ -95,7 +100,7 @@ namespace QLStudy.Service.Api.Features.Legacy
                 SameSite = SameSiteMode.Lax,
                 Path = "/"
             });
-            return Ok(new { message = "ÄÄƒng xuáº¥t thÃ nh cÃ´ng." });
+            return Ok(new { message = "Đăng xuất thành công." });
         }
 
         [HttpPost("forgot-password")]
@@ -104,7 +109,7 @@ namespace QLStudy.Service.Api.Features.Legacy
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null)
             {
-                return BadRequest(new { message = "Email khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng." });
+                return BadRequest(new { message = "Email không tồn tại trong hệ thống." });
             }
 
             // Reset password to default '123456'
@@ -114,7 +119,7 @@ namespace QLStudy.Service.Api.Features.Legacy
 
             return Ok(new
             {
-                message = "Máº­t kháº©u Ä‘Ã£ Ä‘Æ°á»£c khÃ´i phá»¥c thÃ nh cÃ´ng vá» máº·c Ä‘á»‹nh.",
+                message = "Mật khẩu đã được khôi phục thành công về mặc định.",
                 defaultPassword = defaultPassword
             });
         }
@@ -128,13 +133,13 @@ namespace QLStudy.Service.Api.Features.Legacy
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.OldPassword);
             if (result == PasswordVerificationResult.Failed)
             {
-                return BadRequest(new { message = "Máº­t kháº©u cÅ© khÃ´ng chÃ­nh xÃ¡c." });
+                return BadRequest(new { message = "Mật khẩu cũ không chính xác." });
             }
 
             user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Äá»•i máº­t kháº©u thÃ nh cÃ´ng." });
+            return Ok(new { message = "Đổi mật khẩu thành công." });
         }
 
         [HttpGet("me")]
@@ -157,6 +162,8 @@ namespace QLStudy.Service.Api.Features.Legacy
                     user.Email,
                     user.PhoneNumber,
                     user.Role,
+                    user.StudentId,
+                    AssociatedStudents = user.AssociatedStudents.Select(s => new { s.Id, s.Name }).ToList(),
                     user.Token
                 },
                 permissions

@@ -397,6 +397,19 @@
           }
         }
       },
+      "payOS/2.1.0": {
+        "type": "package",
+        "compile": {
+          "lib/net9.0/PayOS.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/PayOS.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Serilog/3.1.1": {
         "type": "package",
         "compile": {
@@ -1201,6 +1214,32 @@
         "postgresql.png"
       ]
     },
+    "payOS/2.1.0": {
+      "sha512": "fsDWb3tfeu6vtawWtQVb34Rbd6sIxzGHUjOa/ASjd/r+/GUaqWUD2d6SzAeCnXghjYO7x0mkfm3TDoYfm26SYQ==",
+      "type": "package",
+      "path": "payos/2.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "CHANGELOG.md",
+        "README.md",
+        "lib/net5.0/PayOS.dll",
+        "lib/net5.0/PayOS.xml",
+        "lib/net6.0/PayOS.dll",
+        "lib/net6.0/PayOS.xml",
+        "lib/net7.0/PayOS.dll",
+        "lib/net7.0/PayOS.xml",
+        "lib/net8.0/PayOS.dll",
+        "lib/net8.0/PayOS.xml",
+        "lib/net9.0/PayOS.dll",
+        "lib/net9.0/PayOS.xml",
+        "lib/netstandard2.0/PayOS.dll",
+        "lib/netstandard2.0/PayOS.xml",
+        "payOS.png",
+        "payos.2.1.0.nupkg.sha512",
+        "payos.nuspec"
+      ]
+    },
     "Serilog/3.1.1": {
       "sha512": "P6G4/4Kt9bT635bhuwdXlJ2SCqqn2nhh4gqFqQueCOr9bK/e7W9ll/IoX1Ter948cV2Z/5+5v8pAfJYUISY03A==",
       "type": "package",
@@ -1433,7 +1472,8 @@
       "QLStudy.Application >= 1.0.0",
       "QLStudy.Domain >= 1.0.0",
       "QLStudy.Infrastructure >= 1.0.0",
-      "TLog >= 1.0.4"
+      "TLog >= 1.0.4",
+      "payOS >= 2.1.0"
     ]
   },
   "packageFolders": {
@@ -1443,11 +1483,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "projectUniqueName": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "projectName": "QLStudy.API",
-      "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\QLStudy.API.csproj",
+      "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\QLStudy.API.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Service.Api\\obj\\",
+      "outputPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Service.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1469,14 +1509,14 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj": {
-              "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Application\\QLStudy.Application.csproj"
+            "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj": {
+              "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Application\\QLStudy.Application.csproj"
             },
-            "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj": {
-              "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Domain\\QLStudy.Domain.csproj"
+            "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj": {
+              "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Domain\\QLStudy.Domain.csproj"
             },
-            "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
-              "projectPath": "D:\\Work\\WorkHome\\QLStudy\\QLStudy\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj"
+            "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj": {
+              "projectPath": "D:\\Work\\WorkHome\\Refactor\\Study\\QLStudy.Infrastructure\\QLStudy.Infrastructure.csproj"
             }
           }
         }
@@ -1509,6 +1549,10 @@
           "TLog": {
             "target": "Package",
             "version": "[1.0.4, )"
+          },
+          "payOS": {
+            "target": "Package",
+            "version": "[2.1.0, )"
           }
         },
         "imports": [
