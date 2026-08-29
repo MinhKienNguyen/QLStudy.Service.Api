@@ -118,9 +118,9 @@ using (var scope = app.Services.CreateScope())
         EnsureTuitionPaymentPaidAtColumn(context, provider);
         EnsureTuitionAdjustmentsTable(context, provider);
         EnsureStudentClassEnrollmentsTable(context, provider);
+        EnsureTenantSchema(context, provider);
         EnsureAnnouncementsTable(context, provider);
         EnsurePayOSTransactionsTable(context, provider);
-        EnsureTenantSchema(context, provider);
         EnsureCenterPaymentColumns(context, provider);
 
         // Seed default subjects, admin account, screen permissions, and update existing classes
