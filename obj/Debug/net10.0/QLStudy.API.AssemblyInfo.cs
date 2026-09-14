@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b4341c02f8e550d08cc21b1ffc657d67df053e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+640bb753337d8cef3ebf6d213c5b710b19d61f9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QLStudy.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
