@@ -4,7 +4,11 @@
 
 [Bb]in/
 [Oo]bj/
-/Logs
-/obj
-/bin
-.vs
+
+# Visual Studio workspace files
+.vs/
+**/.vs/
+
+# Application and diagnostic logs
+*.log
+**/Logs/
