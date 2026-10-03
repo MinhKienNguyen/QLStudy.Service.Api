@@ -1,0 +1,10 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+
+  web:
+    build:
+      context: ../../QLStudy.Web.Portal
+      dockerfile: Dockerfile

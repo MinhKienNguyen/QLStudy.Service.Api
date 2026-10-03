@@ -1,0 +1,13 @@
+.git
+.gitignore
+.vs
+**/.vs
+**/bin
+**/obj
+**/Logs
+*.log
+Backups
+deploy
+qlstudy*.db
+*.user
+*.suo

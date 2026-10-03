@@ -1,0 +1,75 @@
+name: qlstudy
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qlstudy}
+      POSTGRES_USER: ${POSTGRES_USER:-qlstudy_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - qlstudy_network
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    image: qlstudy-api:${APP_VERSION:-1.0.0}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      DatabaseProvider: PostgreSQL
+      SeedExcelOnStartup: "false"
+      ConnectionStrings__PostgresConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-qlstudy};Username=${POSTGRES_USER:-qlstudy_app};Password=${POSTGRES_PASSWORD};Pooling=true;Maximum Pool Size=30;Include Error Detail=false
+      Jwt__SecretKey: ${JWT_SECRET:?JWT_SECRET is required}
+      Serilog__WriteTo__0__Args__path: Logs/qlstudy-production-.log
+      TZ: Asia/Ho_Chi_Minh
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - api_logs:/app/Logs
+    networks:
+      - qlstudy_network
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    image: qlstudy-web:${APP_VERSION:-1.0.0}
+    build:
+      context: ../QLStudy.Web.Portal
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-80}:80"
+    networks:
+      - qlstudy_network
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
+    name: qlstudy_postgres_data
+  api_logs:
+    name: qlstudy_api_logs
+
+networks:
+  qlstudy_network:
+    name: qlstudy_network
+    driver: bridge

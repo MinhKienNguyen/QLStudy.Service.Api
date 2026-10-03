@@ -12,3 +12,7 @@
 # Application and diagnostic logs
 *.log
 **/Logs/
+
+# Local production secrets and generated Docker archives
+deploy/.env.production
+deploy/out/
